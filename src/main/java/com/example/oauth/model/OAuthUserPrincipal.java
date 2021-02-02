@@ -3,6 +3,7 @@ package com.example.oauth.model;
 import com.example.oauth.config.oauth.OAuthProvider;
 import com.example.oauth.repository.model.SocialUser;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,7 +21,8 @@ public class OAuthUserPrincipal implements OAuth2User, UserDetails {
 
     private final Collection<? extends GrantedAuthority> authorities;
     private final Map<String, Object> attributes;
-    private final SocialUser socialUser;
+    @Setter
+    private SocialUser socialUser;
 
     public OAuthUserPrincipal(OAuthProvider provider, OAuth2User user) {
         authorities = user.getAuthorities();
