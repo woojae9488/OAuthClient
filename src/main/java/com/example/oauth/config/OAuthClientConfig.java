@@ -10,6 +10,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.social.oauth1.OAuth1Operations;
+import org.springframework.social.twitter.connect.TwitterConnectionFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,5 +44,14 @@ public class OAuthClientConfig {
     @ConfigurationProperties(prefix = "spring.security.oauth1.client.twitter")
     public OAuth1ClientProperties twitterClientProperties() {
         return new OAuth1ClientProperties(OAuthProvider.TWITTER);
+    }
+
+    @Bean
+    public OAuth1Operations twitterOAuthOperations() {
+        OAuth1ClientProperties twitterClientProperties = twitterClientProperties();
+        return new TwitterConnectionFactory(
+                twitterClientProperties.getClientId(),
+                twitterClientProperties.getClientSecret()
+        ).getOAuthOperations();
     }
 }

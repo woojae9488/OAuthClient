@@ -10,11 +10,11 @@ import java.util.Map;
 
 @ToString
 public class OAuthUserAttributes {
-    private OAuthProvider provider;
+    private final OAuthProvider provider;
+    private final UserRole role;
     private String username;
     private String email;
     private String profileImage;
-    private UserRole role;
 
     public OAuthUserAttributes(OAuthProvider provider, OAuth2User user, UserRole role) {
         this.provider = provider;
@@ -27,20 +27,35 @@ public class OAuthUserAttributes {
             case NAVER:
                 initNaverOAuthUserAttributes(user);
                 break;
+            default:
+                break;
+        }
+    }
+
+    @SuppressWarnings("SwitchStatementWithTooFewBranches")
+    public OAuthUserAttributes(OAuthProvider provider, Map<String, Object> userMap, UserRole role) {
+        this.provider = provider;
+        this.role = role;
+
+        switch (provider) {
             case TWITTER:
-                initTwitterOAuthUserAttributes(user);
+                initTwitterOAuthUserAttributes(userMap);
                 break;
             default:
                 break;
         }
     }
 
+    @SuppressWarnings({"unchecked", "ConstantConditions"})
     private void initKakaoOAuthUserAttributes(OAuth2User user) {
-        this.username = user.getAttribute("username");
-        this.email = user.getAttribute("email");
-        this.profileImage = user.getAttribute("profile_image");
+        Map<String, Object> kakaoAccount = user.getAttribute("kakao_account");
+        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+        this.username = String.valueOf(profile.get("nickname"));
+        this.email = String.valueOf(kakaoAccount.get("email"));
+        this.profileImage = String.valueOf(profile.get("profile_image"));
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void initNaverOAuthUserAttributes(OAuth2User user) {
         Map<String, Object> response = user.getAttribute("response");
         this.username = String.valueOf(response.get("name"));
@@ -48,10 +63,10 @@ public class OAuthUserAttributes {
         this.profileImage = String.valueOf(response.get("profile_image"));
     }
 
-    private void initTwitterOAuthUserAttributes(OAuth2User user) {
-        this.username = user.getAttribute("username");
-        this.email = user.getAttribute("email");
-        this.profileImage = user.getAttribute("profile_image");
+    private void initTwitterOAuthUserAttributes(Map<String, Object> userMap) {
+        this.username = String.valueOf(userMap.get("screen_name"));
+        this.email = String.valueOf(userMap.get("email"));
+        this.profileImage = String.valueOf(userMap.get("profile_image_url"));
     }
 
     public SocialUser generateSocialUser() {

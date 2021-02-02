@@ -1,15 +1,20 @@
 package com.example.oauth.config;
 
+import com.example.oauth.config.security.AuthenticationSuccessHandler;
+import com.example.oauth.config.security.TwitterCallbackAuthenticationFilter;
+import com.example.oauth.config.security.TwitterLoginProcessingFilter;
 import com.example.oauth.model.UserRole;
-import com.example.oauth.service.SocialUserService;
+import com.example.oauth.service.OAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,7 +24,10 @@ import java.util.Collections;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private final SocialUserService userService;
+    private final TwitterLoginProcessingFilter twitterLoginProcessingFilter;
+    private final TwitterCallbackAuthenticationFilter twitterCallbackAuthenticationFilter;
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final OAuth2UserService userService;
 
     @Override
     public void configure(WebSecurity web) {
@@ -45,15 +53,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/admin/**").hasRole(UserRole.ADMIN.name())
                 .anyRequest().authenticated();
 
-        // OAuth 로그인 관리
+        // OAuth2 로그인 관리
         http.oauth2Login()
                 .userInfoEndpoint()
                 .userService(userService)
                 .and()
                 .loginPage("/login")
+                .successHandler(authenticationSuccessHandler)
                 .and()
                 .logout()
                 .logoutSuccessUrl("/");
+
+        // OAuth1 로그인 관리
+        twitterCallbackAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        http.addFilterBefore(twitterLoginProcessingFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(twitterCallbackAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 예외 핸들링
         http.exceptionHandling()
@@ -76,4 +90,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return source;
     }
 
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 }
