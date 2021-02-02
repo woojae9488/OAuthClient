@@ -13,7 +13,7 @@ public class UserApiController {
 
     @ResponseBody
     @GetMapping
-    public Object getSocialUser(@AuthenticatedUser SocialUser socialUser) {
+    public SocialUser getSocialUser(@AuthenticatedUser SocialUser socialUser) {
         return socialUser;
     }
 

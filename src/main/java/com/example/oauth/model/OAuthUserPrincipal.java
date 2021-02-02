@@ -5,10 +5,12 @@ import com.example.oauth.repository.model.SocialUser;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +26,13 @@ public class OAuthUserPrincipal implements OAuth2User, UserDetails {
         authorities = user.getAuthorities();
         attributes = new HashMap<>();
         socialUser = new OAuthUserAttributes(provider, user, UserRole.USER).generateSocialUser();
+    }
+
+    public OAuthUserPrincipal(OAuthProvider provider, Map<String, Object> userMap) {
+        // TODO : UserRole check logic
+        authorities = Collections.singletonList(new SimpleGrantedAuthority(UserRole.USER.getRoleType()));
+        attributes = new HashMap<>();
+        socialUser = new OAuthUserAttributes(provider, userMap, UserRole.USER).generateSocialUser();
     }
 
     @Override
