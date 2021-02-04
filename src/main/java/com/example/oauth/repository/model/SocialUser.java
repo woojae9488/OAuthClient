@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Table(
         name = "social_user",
         indexes = {
-                @Index(name = "idx_provider_username", columnList = "provider,username", unique = true)
+                @Index(name = "idx_provider_email", columnList = "provider,email", unique = true)
         }
 )
 @Data

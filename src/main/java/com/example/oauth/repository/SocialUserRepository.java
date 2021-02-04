@@ -8,8 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SocialUserRepository extends JpaRepository<SocialUser, Long> {
 
-    SocialUser findByProviderAndUsername(OAuthProvider provider, String username);
-
-    boolean existsByProviderAndUsername(OAuthProvider provider, String username);
+    SocialUser findByProviderAndEmail(OAuthProvider provider, String username);
 
 }
