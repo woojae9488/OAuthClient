@@ -1,11 +1,11 @@
 package com.example.oauth.config.security;
 
-import com.example.oauth.config.token.AuthenticationTokenProperties;
-import com.example.oauth.model.AuthenticationTokenType;
+import com.example.oauth.config.token.AuthorizationTokenProperties;
+import com.example.oauth.model.TokenType;
 import com.example.oauth.model.OAuthUserPrincipal;
 import com.example.oauth.repository.SocialUserRepository;
 import com.example.oauth.repository.model.SocialUser;
-import com.example.oauth.service.AuthenticationTokenService;
+import com.example.oauth.service.AuthorizationTokenService;
 import com.example.oauth.util.CookieUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -22,7 +22,8 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
     public static final String OAUTH_SUCCESS_REDIRECT_URL = "/";
 
     private final SocialUserRepository userRepository;
-    private final AuthenticationTokenService tokenService;
+    private final AuthorizationTokenService tokenService;
+    private final AuthorizationTokenProperties tokenProperties;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -40,11 +41,7 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
             userPrincipal.setSocialUser(entity);
         }
 
-        String accessToken = tokenService.createToken(AuthenticationTokenType.ACCESS, socialUser);
-        saveTokenToCookie(response, AuthenticationTokenType.ACCESS, accessToken);
-        String refreshToken = tokenService.createToken(AuthenticationTokenType.REFRESH, socialUser);
-        saveTokenToCookie(response, AuthenticationTokenType.REFRESH, refreshToken);
-
+        setAuthorizationTokenCookies(response, socialUser);
         getRedirectStrategy().sendRedirect(request, response, OAUTH_SUCCESS_REDIRECT_URL);
     }
 
@@ -52,24 +49,16 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
         return userRepository.findByProviderAndEmail(socialUser.getProvider(), socialUser.getUsername());
     }
 
-    private void saveTokenToCookie(HttpServletResponse response, AuthenticationTokenType tokenType, String token) {
-        String cookieKey;
-        int cookieMaxAge;
+    private void setAuthorizationTokenCookies(HttpServletResponse response, SocialUser socialUser) {
+        String accessToken = tokenService.createToken(TokenType.ACCESS_TOKEN, socialUser);
+        String refreshToken = tokenService.createToken(TokenType.REFRESH_TOKEN, socialUser);
+        saveTokenToCookie(response, TokenType.ACCESS_TOKEN, accessToken);
+        saveTokenToCookie(response, TokenType.REFRESH_TOKEN, refreshToken);
+    }
 
-        switch (tokenType) {
-            case ACCESS:
-                cookieKey = AuthenticationTokenProperties.ACCESS_TOKEN_COOKIE_STRING;
-                cookieMaxAge = AuthenticationTokenProperties.ACCESS_TOKEN_COOKIE_MAX_AGE;
-                break;
-            case REFRESH:
-                cookieKey = AuthenticationTokenProperties.REFRESH_TOKEN_COOKIE_STRING;
-                cookieMaxAge = AuthenticationTokenProperties.REFRESH_TOKEN_COOKIE_MAX_AGE;
-                break;
-            default:
-                cookieKey = "";
-                cookieMaxAge = 0;
-        }
-
+    private void saveTokenToCookie(HttpServletResponse response, TokenType tokenType, String token) {
+        String cookieKey = tokenProperties.getTokenCookieKey(tokenType);
+        int cookieMaxAge = tokenProperties.getTokenCookieMaxAge(tokenType);
         CookieUtils.setCookie(response, cookieKey, token, cookieMaxAge);
     }
 }

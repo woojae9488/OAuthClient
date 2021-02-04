@@ -11,32 +11,30 @@ import java.util.Map;
 
 @Getter
 public abstract class TokenAttributes {
-    private AuthenticationTokenType type;
+    private TokenType type;
 
-    protected TokenAttributes(AuthenticationTokenType type) {
+    protected TokenAttributes(TokenType type) {
         this.type = type;
     }
 
-    public static TokenAttributes extract(AuthenticationTokenType tokenType, SocialUser socialUser) {
+    public static TokenAttributes extract(TokenType tokenType, SocialUser socialUser) {
         switch (tokenType) {
-            case ACCESS:
+            case ACCESS_TOKEN:
                 return AccessTokenAttributes.of(socialUser);
-            case REFRESH:
+            case REFRESH_TOKEN:
                 return RefreshTokenAttributes.of(socialUser);
             default:
-                // This should not be called.
                 return null;
         }
     }
 
-    public static TokenAttributes restore(AuthenticationTokenType tokenType, Claims claims) {
+    public static TokenAttributes restore(TokenType tokenType, Claims claims) {
         switch (tokenType) {
-            case ACCESS:
+            case ACCESS_TOKEN:
                 return AccessTokenAttributes.of(claims);
-            case REFRESH:
+            case REFRESH_TOKEN:
                 return RefreshTokenAttributes.of(claims);
             default:
-                // This should not be called.
                 return null;
         }
     }

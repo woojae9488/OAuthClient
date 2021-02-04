@@ -13,7 +13,7 @@ public class AccessTokenAttributes extends TokenAttributes {
     private UserRole role;
 
     private AccessTokenAttributes() {
-        super(AuthenticationTokenType.ACCESS);
+        super(TokenType.ACCESS_TOKEN);
     }
 
     protected static AccessTokenAttributes of(SocialUser socialUser) {

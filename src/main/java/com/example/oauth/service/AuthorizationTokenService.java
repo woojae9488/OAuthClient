@@ -1,7 +1,7 @@
 package com.example.oauth.service;
 
-import com.example.oauth.config.token.AuthenticationTokenProperties;
-import com.example.oauth.model.AuthenticationTokenType;
+import com.example.oauth.config.token.AuthorizationTokenProperties;
+import com.example.oauth.model.TokenType;
 import com.example.oauth.model.TokenAttributes;
 import com.example.oauth.repository.model.SocialUser;
 import io.jsonwebtoken.Claims;
@@ -15,14 +15,13 @@ import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationTokenService {
+public class AuthorizationTokenService {
     private static final String JWT_SUBJECT_PREFIX = "USER/";
-    private final AuthenticationTokenProperties tokenProperties;
+    private final AuthorizationTokenProperties tokenProperties;
 
-    // TODO : change expiration msec by token type
-    public String createToken(AuthenticationTokenType tokenType, SocialUser socialUser) {
+    public String createToken(TokenType tokenType, SocialUser socialUser) {
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + tokenProperties.getTokenExpirationMsec());
+        Date expiration = new Date(now.getTime() + tokenProperties.getTokenExpirationMsec(tokenType));
 
         TokenAttributes tokenAttributes = TokenAttributes.extract(tokenType, socialUser);
         assert tokenAttributes != null;
@@ -32,26 +31,25 @@ public class AuthenticationTokenService {
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .setClaims(tokenAttributes.getAttributesMap())
-                .signWith(SignatureAlgorithm.HS256, tokenProperties.getTokenSecret())
+                .signWith(SignatureAlgorithm.HS256, tokenProperties.getTokenSecret(tokenType))
                 .compact();
     }
 
-    public SocialUser getPseudoSocialUserFromToken(AuthenticationTokenType tokenType, String token) {
+    public SocialUser getPseudoSocialUserFromToken(TokenType tokenType, String token) {
         Claims claims = Jwts.parser()
-                .setSigningKey(tokenProperties.getTokenSecret())
+                .setSigningKey(tokenProperties.getTokenSecret(tokenType))
                 .parseClaimsJws(token)
                 .getBody();
 
         TokenAttributes tokenAttributes = TokenAttributes.restore(tokenType, claims);
         assert tokenAttributes != null;
-
         return tokenAttributes.getPseudoSocialUser();
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(TokenType tokenType, String token) {
         try {
             Jwts.parser()
-                    .setSigningKey(tokenProperties.getTokenSecret())
+                    .setSigningKey(tokenProperties.getTokenSecret(tokenType))
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException e) {

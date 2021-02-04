@@ -11,8 +11,12 @@ logging:
 
 security:
   token:
-    secret: 6Bsp333Igv40M9HclVTCZRxkzNUzCLNR
-    expirationMsec: 10800000
+    access:
+      secret: coeQbgYFm46Dmocq
+      expirationMsec: 1800000 # 1000 * 60 * 30
+    refresh:
+      secret: Hkq3GT5aCjGDT56e
+      expirationMsec: 604800000 # 1000 * 60 * 60 * 24 * 7
 
 spring:
   h2:

@@ -25,8 +25,7 @@ public class CookieUtils {
     public void setCookie(HttpServletResponse response, String key, String value, int maxAge) {
         Cookie cookie = new Cookie(key, value);
         cookie.setPath("/");
-        // TODO : set http only true
-        cookie.setHttpOnly(false); // Frontend will receive token by cookie
+        cookie.setHttpOnly(true); // Frontend can not receive token by cookie
         cookie.setMaxAge(maxAge);
         response.addCookie(cookie);
     }
