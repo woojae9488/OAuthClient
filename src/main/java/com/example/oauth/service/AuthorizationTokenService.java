@@ -1,11 +1,10 @@
 package com.example.oauth.service;
 
 import com.example.oauth.config.token.AuthorizationTokenProperties;
-import com.example.oauth.model.TokenType;
 import com.example.oauth.model.TokenAttributes;
+import com.example.oauth.model.TokenType;
 import com.example.oauth.repository.model.SocialUser;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +51,7 @@ public class AuthorizationTokenService {
                     .setSigningKey(tokenProperties.getTokenSecret(tokenType))
                     .parseClaimsJws(token);
             return true;
-        } catch (JwtException e) {
+        } catch (Exception e) {
             return false;
         }
     }

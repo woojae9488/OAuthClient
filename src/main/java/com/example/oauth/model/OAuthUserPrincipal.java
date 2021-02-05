@@ -25,16 +25,23 @@ public class OAuthUserPrincipal implements OAuth2User, UserDetails {
     private SocialUser socialUser;
 
     public OAuthUserPrincipal(OAuthProvider provider, OAuth2User user) {
-        authorities = user.getAuthorities();
-        attributes = new HashMap<>();
-        socialUser = new OAuthUserAttributes(provider, user, UserRole.USER).generateSocialUser();
+        this.authorities = user.getAuthorities();
+        this.attributes = new HashMap<>();
+        this.socialUser = new OAuthUserAttributes(provider, user, UserRole.USER).generateSocialUser();
     }
 
     public OAuthUserPrincipal(OAuthProvider provider, Map<String, Object> userMap) {
         // TODO : UserRole check logic
-        authorities = Collections.singletonList(new SimpleGrantedAuthority(UserRole.USER.getRoleType()));
-        attributes = new HashMap<>();
-        socialUser = new OAuthUserAttributes(provider, userMap, UserRole.USER).generateSocialUser();
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(UserRole.USER.getRoleType()));
+        this.attributes = new HashMap<>();
+        this.socialUser = new OAuthUserAttributes(provider, userMap, UserRole.USER).generateSocialUser();
+    }
+
+    public OAuthUserPrincipal(SocialUser socialUser) {
+        String roleType = socialUser.getRole().getRoleType();
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(roleType));
+        this.attributes = new HashMap<>();
+        this.socialUser = socialUser;
     }
 
     @Override

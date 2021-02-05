@@ -1,6 +1,7 @@
 package com.example.oauth.config.token;
 
 import com.example.oauth.model.TokenType;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@Getter
+@Getter(value = AccessLevel.PRIVATE)
 @Setter
 @ConfigurationProperties(prefix = "security.token")
 public class AuthorizationTokenProperties {
