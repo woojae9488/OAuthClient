@@ -2,6 +2,7 @@ package com.example.oauth.repository.model;
 
 import com.example.oauth.config.oauth.OAuthProvider;
 import com.example.oauth.model.UserRole;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,7 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SocialUser {
     @Id
     @Column(name = "id")

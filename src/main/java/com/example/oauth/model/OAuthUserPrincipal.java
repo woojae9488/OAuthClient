@@ -80,6 +80,6 @@ public class OAuthUserPrincipal implements OAuth2User, UserDetails {
     @Override
     public Map<String, Object> getAttributes() {
         return JsonUtils.convertValue(socialUser, new TypeReference<Map<String, Object>>() {
-        }).orElse(new HashMap<>());
+        }).orElseGet(HashMap::new);
     }
 }

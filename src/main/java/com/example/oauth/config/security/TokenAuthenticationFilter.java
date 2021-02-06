@@ -36,6 +36,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String accessToken = getTokenFromRequest(TokenType.ACCESS_TOKEN, request);
         String refreshToken = getTokenFromRequest(TokenType.REFRESH_TOKEN, request);
+        if (accessToken == null || refreshToken == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         Authentication authentication = attemptAuthentication(request, accessToken);
         if (authentication != null) {
@@ -52,7 +56,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
     private String getTokenFromRequest(TokenType tokenType, HttpServletRequest request) {
         Cookie tokenCookie = CookieUtils.getCookie(request, tokenProperties.getTokenCookieKey(tokenType))
-                .orElse(new Cookie("", ""));
+                .orElseGet(() -> new Cookie("empty", ""));
         String token = tokenCookie.getValue();
 
         return StringUtils.hasText(token) ? token : null;

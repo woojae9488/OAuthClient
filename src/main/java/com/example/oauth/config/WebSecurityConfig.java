@@ -1,6 +1,7 @@
 package com.example.oauth.config;
 
 import com.example.oauth.config.security.AuthenticationSuccessHandler;
+import com.example.oauth.config.security.TokenAuthenticationFilter;
 import com.example.oauth.config.security.TwitterCallbackAuthenticationFilter;
 import com.example.oauth.config.security.TwitterLoginProcessingFilter;
 import com.example.oauth.model.UserRole;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -27,6 +29,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final TwitterLoginProcessingFilter twitterLoginProcessingFilter;
     private final TwitterCallbackAuthenticationFilter twitterCallbackAuthenticationFilter;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final TokenAuthenticationFilter tokenAuthenticationFilter;
     private final OAuth2UserService userService;
 
     @Override
@@ -43,8 +46,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .disable();
 
         // 세션 관리
-//        http.sessionManagement()
-//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         // 경로 인가 관리
         http.authorizeRequests()
@@ -64,8 +67,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logout()
                 .logoutSuccessUrl("/");
 
-        // OAuth1 로그인 관리
+        // OAuth1 및 토큰 로그인 관리
         twitterCallbackAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(twitterLoginProcessingFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(twitterCallbackAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

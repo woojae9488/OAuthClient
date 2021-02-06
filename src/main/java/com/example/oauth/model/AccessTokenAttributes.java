@@ -28,9 +28,9 @@ public class AccessTokenAttributes extends TokenAttributes {
     protected static AccessTokenAttributes of(Claims claims) {
         AccessTokenAttributes tokenAttributes = new AccessTokenAttributes();
         tokenAttributes.id = claims.get("id", Long.class);
-        tokenAttributes.provider = claims.get("provider", OAuthProvider.class);
+        tokenAttributes.provider = OAuthProvider.valueOf(claims.get("provider", String.class));
         tokenAttributes.email = claims.get("email", String.class);
-        tokenAttributes.role = claims.get("role", UserRole.class);
+        tokenAttributes.role = UserRole.valueOf(claims.get("role", String.class));
         return tokenAttributes;
     }
 

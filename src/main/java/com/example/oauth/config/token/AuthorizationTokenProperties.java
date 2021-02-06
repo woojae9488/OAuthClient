@@ -5,27 +5,23 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
 @Getter(value = AccessLevel.PRIVATE)
 @Setter
-@ConfigurationProperties(prefix = "security.token")
 public class AuthorizationTokenProperties {
-    private final String headerKey = "Authorization";
-    private final String headerValuePrefix = "Bearer ";
     private final String accessTokenCookieKey = "access-token";
     private final String refreshTokenCookieKey = "refresh-token";
 
-    @Value("${access.secret}")
+    @Value("${security.token.access.secret}")
     private String accessTokenSecret;
-    @Value("${access.expirationMsec}")
+    @Value("${security.token.access.expirationMsec}")
     private Long accessTokenExpirationMsec;
 
-    @Value("${refresh.secret}")
+    @Value("${security.token.refresh.secret}")
     private String refreshTokenSecret;
-    @Value("${refresh.expirationMsec}")
+    @Value("${security.token.refresh.expirationMsec}")
     private Long refreshTokenExpirationMsec;
 
     public String getTokenSecret(TokenType tokenType) {

@@ -2,6 +2,7 @@ package com.example.oauth.model;
 
 import com.example.oauth.repository.model.SocialUser;
 import com.example.oauth.util.JsonUtils;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.jsonwebtoken.Claims;
 import lombok.Getter;
@@ -10,8 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class TokenAttributes {
-    private TokenType type;
+    private final TokenType type;
 
     protected TokenAttributes(TokenType type) {
         this.type = type;
@@ -40,8 +42,8 @@ public abstract class TokenAttributes {
     }
 
     public Map<String, Object> getAttributesMap() {
-        return JsonUtils.convertValue(this, new TypeReference<Map<String, Object>>() {
-        }).orElse(new HashMap<>());
+        return JsonUtils.convertValue(this.getPseudoSocialUser(), new TypeReference<Map<String, Object>>() {
+        }).orElseGet(HashMap::new);
     }
 
     public abstract SocialUser getPseudoSocialUser();
