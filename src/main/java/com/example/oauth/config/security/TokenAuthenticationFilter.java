@@ -3,7 +3,6 @@ package com.example.oauth.config.security;
 import com.example.oauth.config.token.AuthorizationTokenProperties;
 import com.example.oauth.model.OAuthUserPrincipal;
 import com.example.oauth.model.TokenType;
-import com.example.oauth.repository.SocialUserRepository;
 import com.example.oauth.repository.model.SocialUser;
 import com.example.oauth.service.AuthorizationTokenService;
 import com.example.oauth.util.CookieUtils;
@@ -28,7 +27,6 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
-    private final SocialUserRepository userRepository;
     private final AuthorizationTokenService tokenService;
     private final AuthorizationTokenProperties tokenProperties;
 
@@ -43,7 +41,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         if (authentication != null) {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {
-            String refreshedAccessToken = refreshAccessToken(refreshToken);
+            String refreshedAccessToken = tokenService.refreshAccessToken(refreshToken);
             saveRefreshedAccessTokenToCookie(response, refreshedAccessToken);
             Authentication refreshedAuthentication = attemptAuthentication(request, refreshedAccessToken);
             SecurityContextHolder.getContext().setAuthentication(refreshedAuthentication);
@@ -52,9 +50,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String getTokenFromRequest(TokenType tokenType, HttpServletRequest request) throws AuthenticationFailedException {
+    private String getTokenFromRequest(TokenType tokenType, HttpServletRequest request) {
         Cookie tokenCookie = CookieUtils.getCookie(request, tokenProperties.getTokenCookieKey(tokenType))
-                .orElseThrow(AuthenticationFailedException::new);
+                .orElse(new Cookie("", ""));
         String token = tokenCookie.getValue();
 
         return StringUtils.hasText(token) ? token : null;
@@ -71,14 +69,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             return authentication;
         }
 
-        return null;
-    }
-
-    private String refreshAccessToken(String refreshToken) throws AuthenticationFailedException {
-        // TODO : fill this method
-        if (refreshToken == null) {
-            throw new AuthenticationFailedException();
-        }
         return null;
     }
 

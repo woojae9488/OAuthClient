@@ -10,6 +10,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.mail.AuthenticationFailedException;
 import java.util.Date;
 
 @Service
@@ -53,6 +54,15 @@ public class AuthorizationTokenService {
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public String refreshAccessToken(String refreshToken) throws AuthenticationFailedException {
+        // TODO : change this method
+        if (refreshToken == null) {
+            throw new AuthenticationFailedException();
+        } else {
+            return this.createToken(TokenType.ACCESS_TOKEN, new SocialUser());
         }
     }
 }
