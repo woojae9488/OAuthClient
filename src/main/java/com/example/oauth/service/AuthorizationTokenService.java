@@ -60,15 +60,19 @@ public class AuthorizationTokenService {
                 .compact();
     }
 
-    public SocialUser getPseudoSocialUserFromToken(TokenType tokenType, String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(tokenProperties.getTokenSecret(tokenType))
-                .parseClaimsJws(token)
-                .getBody();
+    public SocialUser getPseudoSocialUserFromToken(TokenType tokenType, String token) throws AuthenticationFailedException {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(tokenProperties.getTokenSecret(tokenType))
+                    .parseClaimsJws(token)
+                    .getBody();
 
-        TokenAttributes tokenAttributes = TokenAttributes.restore(tokenType, claims);
-        assert tokenAttributes != null;
-        return tokenAttributes.getPseudoSocialUser();
+            TokenAttributes tokenAttributes = TokenAttributes.restore(tokenType, claims);
+            assert tokenAttributes != null;
+            return tokenAttributes.getPseudoSocialUser();
+        } catch (Exception e) {
+            throw new AuthenticationFailedException();
+        }
     }
 
     public boolean validateToken(TokenType tokenType, String token) {
@@ -82,12 +86,29 @@ public class AuthorizationTokenService {
         }
     }
 
-    public String refreshAccessToken(String refreshToken) throws AuthenticationFailedException {
-        // TODO : change this method
+    public String refreshAccessToken(String expiredAccessToken, String refreshToken) throws AuthenticationFailedException {
         if (refreshToken == null) {
             throw new AuthenticationFailedException();
-        } else {
-            return this.createToken(TokenType.ACCESS_TOKEN, new SocialUser());
         }
+        SocialUser pseudoSocialUser = getPseudoSocialUserFromToken(TokenType.REFRESH_TOKEN, refreshToken);
+        TokenStore tokenStore = tokenStoreRepository.findByUserId(pseudoSocialUser.getId())
+                .orElseThrow(AuthenticationFailedException::new);
+
+        if (validateRefreshToken(tokenStore, expiredAccessToken, refreshToken)) {
+            String accessToken = createToken(TokenType.ACCESS_TOKEN, new SocialUser());
+            reflectNewAccessTokenToTokenStore(tokenStore, accessToken);
+        }
+        throw new AuthenticationFailedException();
+    }
+
+    private boolean validateRefreshToken(TokenStore tokenStore, String expiredAccessToken, String refreshToken) {
+        return expiredAccessToken.equals(tokenStore.getAccessToken())
+                && refreshToken.equals(tokenStore.getRefreshToken());
+    }
+
+    private void reflectNewAccessTokenToTokenStore(TokenStore tokenStore, String accessToken) {
+        tokenStore.setAccessToken(accessToken);
+        tokenStore.setUpdateTime(System.currentTimeMillis());
+        tokenStoreRepository.save(tokenStore);
     }
 }

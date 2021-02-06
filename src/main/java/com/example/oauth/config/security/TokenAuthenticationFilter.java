@@ -45,7 +45,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         if (authentication != null) {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {
-            String refreshedAccessToken = tokenService.refreshAccessToken(refreshToken);
+            String refreshedAccessToken = tokenService.refreshAccessToken(accessToken, refreshToken);
             saveRefreshedAccessTokenToCookie(response, refreshedAccessToken);
             Authentication refreshedAuthentication = attemptAuthentication(request, refreshedAccessToken);
             SecurityContextHolder.getContext().setAuthentication(refreshedAuthentication);
@@ -62,7 +62,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         return StringUtils.hasText(token) ? token : null;
     }
 
-    private Authentication attemptAuthentication(HttpServletRequest request, String accessToken) {
+    private Authentication attemptAuthentication(HttpServletRequest request, String accessToken) throws AuthenticationFailedException {
         if (tokenService.validateToken(TokenType.ACCESS_TOKEN, accessToken)) {
             SocialUser pseudoSocialUser = tokenService.getPseudoSocialUserFromToken(TokenType.ACCESS_TOKEN, accessToken);
             OAuthUserPrincipal userPrincipal = new OAuthUserPrincipal(pseudoSocialUser);
