@@ -3,6 +3,7 @@ package com.example.oauth.service;
 import com.example.oauth.config.token.AuthorizationTokenProperties;
 import com.example.oauth.model.TokenAttributes;
 import com.example.oauth.model.TokenType;
+import com.example.oauth.repository.TokenStoreRepository;
 import com.example.oauth.repository.model.SocialUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -17,9 +18,21 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class AuthorizationTokenService {
     private static final String JWT_SUBJECT_PREFIX = "USER/";
-    private final AuthorizationTokenProperties tokenProperties;
 
-    public String createToken(TokenType tokenType, SocialUser socialUser) {
+    private final AuthorizationTokenProperties tokenProperties;
+    private final TokenStoreRepository tokenStoreRepository;
+
+    public String createAccessToken(SocialUser socialUser) {
+        return createToken(TokenType.ACCESS_TOKEN, socialUser);
+    }
+
+    public String createRefreshToken(SocialUser socialUser, String accessToken) {
+        String refreshToken = createToken(TokenType.REFRESH_TOKEN, socialUser);
+        // TODO : fill this method
+        return refreshToken;
+    }
+
+    private String createToken(TokenType tokenType, SocialUser socialUser) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + tokenProperties.getTokenExpirationMsec(tokenType));
 
