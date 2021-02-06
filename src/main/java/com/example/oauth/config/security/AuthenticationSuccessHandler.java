@@ -41,12 +41,12 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
             userPrincipal.setSocialUser(entity);
         }
 
-        setAuthorizationTokenCookies(response, socialUser);
+        setAuthorizationTokenCookies(response, userPrincipal.getSocialUser());
         getRedirectStrategy().sendRedirect(request, response, OAUTH_SUCCESS_REDIRECT_URL);
     }
 
     private SocialUser getSocialUserEntity(SocialUser socialUser) {
-        return userRepository.findByProviderAndEmail(socialUser.getProvider(), socialUser.getUsername());
+        return userRepository.findByProviderAndEmail(socialUser.getProvider(), socialUser.getEmail());
     }
 
     private void setAuthorizationTokenCookies(HttpServletResponse response, SocialUser socialUser) {
