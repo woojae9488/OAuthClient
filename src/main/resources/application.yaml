@@ -9,6 +9,15 @@ logging:
     org.springframework.security.oauth2: INFO
 #    org.springframework.boot.autoconfigure: DEBUG
 
+security:
+  token:
+    access:
+      secret: coeQbgYFm46Dmocq
+      expirationMsec: 1800000 # 1000 * 60 * 30
+    refresh:
+      secret: Hkq3GT5aCjGDT56e
+      expirationMsec: 604800000 # 1000 * 60 * 60 * 24 * 7
+
 spring:
   h2:
     console:

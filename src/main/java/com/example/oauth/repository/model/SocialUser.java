@@ -2,6 +2,7 @@ package com.example.oauth.repository.model;
 
 import com.example.oauth.config.oauth.OAuthProvider;
 import com.example.oauth.model.UserRole;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,13 +14,14 @@ import javax.persistence.*;
 @Table(
         name = "social_user",
         indexes = {
-                @Index(name = "idx_provider_username", columnList = "provider,username", unique = true)
+                @Index(name = "idx_provider_email", columnList = "provider,email", unique = true)
         }
 )
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SocialUser {
     @Id
     @Column(name = "id")

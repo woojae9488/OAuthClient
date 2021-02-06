@@ -2,7 +2,10 @@ package com.example.oauth.model;
 
 import com.example.oauth.config.oauth.OAuthProvider;
 import com.example.oauth.repository.model.SocialUser;
+import com.example.oauth.util.JsonUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,20 +22,24 @@ import java.util.Map;
 public class OAuthUserPrincipal implements OAuth2User, UserDetails {
 
     private final Collection<? extends GrantedAuthority> authorities;
-    private final Map<String, Object> attributes;
-    private final SocialUser socialUser;
+    @Setter
+    private SocialUser socialUser;
 
     public OAuthUserPrincipal(OAuthProvider provider, OAuth2User user) {
-        authorities = user.getAuthorities();
-        attributes = new HashMap<>();
-        socialUser = new OAuthUserAttributes(provider, user, UserRole.USER).generateSocialUser();
+        this.authorities = user.getAuthorities();
+        this.socialUser = new OAuthUserAttributes(provider, user, UserRole.USER).generateSocialUser();
     }
 
     public OAuthUserPrincipal(OAuthProvider provider, Map<String, Object> userMap) {
-        // TODO : UserRole check logic
-        authorities = Collections.singletonList(new SimpleGrantedAuthority(UserRole.USER.getRoleType()));
-        attributes = new HashMap<>();
-        socialUser = new OAuthUserAttributes(provider, userMap, UserRole.USER).generateSocialUser();
+        // TODO : add UserRole check logic
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(UserRole.USER.getRoleType()));
+        this.socialUser = new OAuthUserAttributes(provider, userMap, UserRole.USER).generateSocialUser();
+    }
+
+    public OAuthUserPrincipal(SocialUser socialUser) {
+        String roleType = socialUser.getRole().getRoleType();
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(roleType));
+        this.socialUser = socialUser;
     }
 
     @Override
@@ -68,5 +75,11 @@ public class OAuthUserPrincipal implements OAuth2User, UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return JsonUtils.convertValue(socialUser, new TypeReference<Map<String, Object>>() {
+        }).orElseGet(HashMap::new);
     }
 }

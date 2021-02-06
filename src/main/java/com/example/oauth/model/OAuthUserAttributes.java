@@ -46,18 +46,19 @@ public class OAuthUserAttributes {
         }
     }
 
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
+    @SuppressWarnings("unchecked")
     private void initKakaoOAuthUserAttributes(OAuth2User user) {
         Map<String, Object> kakaoAccount = user.getAttribute("kakao_account");
+        assert kakaoAccount != null;
         Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
         this.username = String.valueOf(profile.get("nickname"));
         this.email = String.valueOf(kakaoAccount.get("email"));
         this.profileImage = String.valueOf(profile.get("profile_image"));
     }
 
-    @SuppressWarnings("ConstantConditions")
     private void initNaverOAuthUserAttributes(OAuth2User user) {
         Map<String, Object> response = user.getAttribute("response");
+        assert response != null;
         this.username = String.valueOf(response.get("name"));
         this.email = String.valueOf(response.get("email"));
         this.profileImage = String.valueOf(response.get("profile_image"));
