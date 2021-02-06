@@ -5,7 +5,6 @@ import com.example.oauth.repository.model.SocialUser;
 import lombok.ToString;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.Date;
 import java.util.Map;
 
 @ToString
@@ -77,7 +76,7 @@ public class OAuthUserAttributes {
                 .email(email)
                 .profileImage(profileImage)
                 .role(role)
-                .createTime(new Date().getTime())
+                .createTime(System.currentTimeMillis())
                 .build();
     }
 }

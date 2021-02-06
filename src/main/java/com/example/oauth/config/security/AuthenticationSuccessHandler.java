@@ -35,8 +35,8 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
 
         OAuthUserPrincipal userPrincipal = (OAuthUserPrincipal) authentication.getPrincipal();
         SocialUser socialUser = userPrincipal.getSocialUser();
-        Optional<SocialUser> entity = getSocialUserEntity(socialUser);
-        entity.ifPresentOrElse(
+        Optional<SocialUser> socialUserEntity = getSocialUserEntity(socialUser);
+        socialUserEntity.ifPresentOrElse(
                 userPrincipal::setSocialUser,
                 () -> userRepository.save(socialUser)
         );

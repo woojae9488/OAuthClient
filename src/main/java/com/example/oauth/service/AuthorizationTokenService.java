@@ -5,6 +5,7 @@ import com.example.oauth.model.TokenAttributes;
 import com.example.oauth.model.TokenType;
 import com.example.oauth.repository.TokenStoreRepository;
 import com.example.oauth.repository.model.SocialUser;
+import com.example.oauth.repository.model.TokenStore;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -28,7 +29,18 @@ public class AuthorizationTokenService {
 
     public String createRefreshToken(SocialUser socialUser, String accessToken) {
         String refreshToken = createToken(TokenType.REFRESH_TOKEN, socialUser);
-        // TODO : fill this method
+        Long existTokenStoreId = tokenStoreRepository.findByUserId(socialUser.getId())
+                .orElseGet(TokenStore::new)
+                .getId();
+
+        TokenStore tokenStore = TokenStore.builder()
+                .id(existTokenStoreId)
+                .userId(socialUser.getId())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .createTime(System.currentTimeMillis())
+                .build();
+        tokenStoreRepository.save(tokenStore);
         return refreshToken;
     }
 

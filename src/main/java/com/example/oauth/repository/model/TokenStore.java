@@ -2,6 +2,7 @@ package com.example.oauth.repository.model;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -14,6 +15,7 @@ import javax.persistence.*;
 )
 @Data
 @Builder
+@NoArgsConstructor
 public class TokenStore {
     @Id
     @Column(name = "id")
