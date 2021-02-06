@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -34,24 +35,23 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
 
         OAuthUserPrincipal userPrincipal = (OAuthUserPrincipal) authentication.getPrincipal();
         SocialUser socialUser = userPrincipal.getSocialUser();
-        SocialUser entity = getSocialUserEntity(socialUser);
-        if (entity == null) {
-            userRepository.save(socialUser);
-        } else {
-            userPrincipal.setSocialUser(entity);
-        }
+        Optional<SocialUser> socialUserEntity = getSocialUserEntity(socialUser);
+        socialUserEntity.ifPresentOrElse(
+                userPrincipal::setSocialUser,
+                () -> userRepository.save(socialUser)
+        );
 
         setAuthorizationTokenCookies(response, userPrincipal.getSocialUser());
         getRedirectStrategy().sendRedirect(request, response, OAUTH_SUCCESS_REDIRECT_URL);
     }
 
-    private SocialUser getSocialUserEntity(SocialUser socialUser) {
+    private Optional<SocialUser> getSocialUserEntity(SocialUser socialUser) {
         return userRepository.findByProviderAndEmail(socialUser.getProvider(), socialUser.getEmail());
     }
 
     private void setAuthorizationTokenCookies(HttpServletResponse response, SocialUser socialUser) {
-        String accessToken = tokenService.createToken(TokenType.ACCESS_TOKEN, socialUser);
-        String refreshToken = tokenService.createToken(TokenType.REFRESH_TOKEN, socialUser);
+        String accessToken = tokenService.createAccessToken(socialUser);
+        String refreshToken = tokenService.createRefreshToken(socialUser, accessToken);
         saveTokenToCookie(response, TokenType.ACCESS_TOKEN, accessToken);
         saveTokenToCookie(response, TokenType.REFRESH_TOKEN, refreshToken);
     }
