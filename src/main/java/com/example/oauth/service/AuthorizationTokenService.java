@@ -3,6 +3,7 @@ package com.example.oauth.service;
 import com.example.oauth.config.token.AuthorizationTokenProperties;
 import com.example.oauth.model.TokenAttributes;
 import com.example.oauth.model.TokenType;
+import com.example.oauth.repository.SocialUserRepository;
 import com.example.oauth.repository.TokenStoreRepository;
 import com.example.oauth.repository.model.SocialUser;
 import com.example.oauth.repository.model.TokenStore;
@@ -22,6 +23,7 @@ public class AuthorizationTokenService {
 
     private final AuthorizationTokenProperties tokenProperties;
     private final TokenStoreRepository tokenStoreRepository;
+    private final SocialUserRepository userRepository;
 
     public String createAccessToken(SocialUser socialUser) {
         return createToken(TokenType.ACCESS_TOKEN, socialUser);
@@ -95,10 +97,14 @@ public class AuthorizationTokenService {
                 .orElseThrow(AuthenticationFailedException::new);
 
         if (validateRefreshToken(tokenStore, expiredAccessToken, refreshToken)) {
-            String accessToken = createToken(TokenType.ACCESS_TOKEN, new SocialUser());
+            SocialUser socialUser = userRepository.findById(pseudoSocialUser.getId())
+                    .orElseThrow(AuthenticationFailedException::new);
+            String accessToken = createToken(TokenType.ACCESS_TOKEN, socialUser);
             reflectNewAccessTokenToTokenStore(tokenStore, accessToken);
+            return accessToken;
+        } else {
+            throw new AuthenticationFailedException();
         }
-        throw new AuthenticationFailedException();
     }
 
     private boolean validateRefreshToken(TokenStore tokenStore, String expiredAccessToken, String refreshToken) {
