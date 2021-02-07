@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Table(
         name = "social_user",
         indexes = {
-                @Index(name = "idx_provider_n_email", columnList = "provider,email", unique = true)
+                @Index(name = "idx_provider_n_provider_user_id", columnList = "provider,provider_user_id", unique = true)
         }
 )
 @Data
@@ -32,6 +32,9 @@ public class SocialUser {
     @Enumerated(EnumType.STRING)
     private OAuthProvider provider;
 
+    @Column(name = "provider_user_id")
+    private Long providerUserId;
+
     @Column(name = "username")
     private String username;
 
@@ -47,4 +50,7 @@ public class SocialUser {
 
     @Column(name = "create_time")
     private Long createTime;
+
+    @Column(name = "update_time")
+    private Long updateTime;
 }

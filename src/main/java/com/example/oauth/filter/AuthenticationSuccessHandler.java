@@ -46,7 +46,7 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
     }
 
     private Optional<SocialUser> getSocialUserEntity(SocialUser socialUser) {
-        return userRepository.findByProviderAndEmail(socialUser.getProvider(), socialUser.getEmail());
+        return userRepository.findByProviderAndProviderUserId(socialUser.getProvider(), socialUser.getProviderUserId());
     }
 
     private void setAuthorizationTokenCookies(HttpServletResponse response, SocialUser socialUser) {
