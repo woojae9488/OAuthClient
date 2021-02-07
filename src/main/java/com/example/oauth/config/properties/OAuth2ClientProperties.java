@@ -1,5 +1,6 @@
-package com.example.oauth.config.oauth;
+package com.example.oauth.config.properties;
 
+import com.example.oauth.model.oauth.OAuthProvider;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

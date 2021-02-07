@@ -1,6 +1,6 @@
-package com.example.oauth.model;
+package com.example.oauth.model.oauth;
 
-import com.example.oauth.config.oauth.OAuthProvider;
+import com.example.oauth.model.UserRole;
 import com.example.oauth.repository.model.SocialUser;
 import lombok.ToString;
 import org.springframework.security.oauth2.core.user.OAuth2User;

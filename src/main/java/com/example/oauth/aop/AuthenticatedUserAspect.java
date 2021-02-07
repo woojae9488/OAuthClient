@@ -1,6 +1,6 @@
 package com.example.oauth.aop;
 
-import com.example.oauth.model.OAuthUserPrincipal;
+import com.example.oauth.model.oauth.OAuthUserPrincipal;
 import com.example.oauth.repository.model.SocialUser;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

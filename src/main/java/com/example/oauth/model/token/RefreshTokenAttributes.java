@@ -1,4 +1,4 @@
-package com.example.oauth.model;
+package com.example.oauth.model.token;
 
 import com.example.oauth.repository.model.SocialUser;
 import io.jsonwebtoken.Claims;

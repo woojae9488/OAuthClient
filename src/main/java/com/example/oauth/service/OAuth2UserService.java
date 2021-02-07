@@ -1,7 +1,7 @@
 package com.example.oauth.service;
 
-import com.example.oauth.config.oauth.OAuthProvider;
-import com.example.oauth.model.OAuthUserPrincipal;
+import com.example.oauth.model.oauth.OAuthProvider;
+import com.example.oauth.model.oauth.OAuthUserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;

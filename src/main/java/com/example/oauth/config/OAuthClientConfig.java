@@ -1,8 +1,8 @@
 package com.example.oauth.config;
 
-import com.example.oauth.config.oauth.OAuth1ClientProperties;
-import com.example.oauth.config.oauth.OAuth2ClientProperties;
-import com.example.oauth.config.oauth.OAuthProvider;
+import com.example.oauth.config.properties.OAuth1ClientProperties;
+import com.example.oauth.config.properties.OAuth2ClientProperties;
+import com.example.oauth.model.oauth.OAuthProvider;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

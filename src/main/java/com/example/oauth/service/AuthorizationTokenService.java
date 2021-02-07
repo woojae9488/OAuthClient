@@ -1,8 +1,8 @@
 package com.example.oauth.service;
 
-import com.example.oauth.config.token.AuthorizationTokenProperties;
-import com.example.oauth.model.TokenAttributes;
-import com.example.oauth.model.TokenType;
+import com.example.oauth.config.properties.AuthorizationTokenProperties;
+import com.example.oauth.model.token.TokenAttributes;
+import com.example.oauth.model.token.TokenType;
 import com.example.oauth.repository.SocialUserRepository;
 import com.example.oauth.repository.TokenStoreRepository;
 import com.example.oauth.repository.model.SocialUser;

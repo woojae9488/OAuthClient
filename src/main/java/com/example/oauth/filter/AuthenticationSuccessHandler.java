@@ -1,8 +1,8 @@
-package com.example.oauth.config.security;
+package com.example.oauth.filter;
 
-import com.example.oauth.config.token.AuthorizationTokenProperties;
-import com.example.oauth.model.TokenType;
-import com.example.oauth.model.OAuthUserPrincipal;
+import com.example.oauth.config.properties.AuthorizationTokenProperties;
+import com.example.oauth.model.token.TokenType;
+import com.example.oauth.model.oauth.OAuthUserPrincipal;
 import com.example.oauth.repository.SocialUserRepository;
 import com.example.oauth.repository.model.SocialUser;
 import com.example.oauth.service.AuthorizationTokenService;

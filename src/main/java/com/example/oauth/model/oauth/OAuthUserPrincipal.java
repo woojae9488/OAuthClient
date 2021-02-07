@@ -1,6 +1,6 @@
-package com.example.oauth.model;
+package com.example.oauth.model.oauth;
 
-import com.example.oauth.config.oauth.OAuthProvider;
+import com.example.oauth.model.UserRole;
 import com.example.oauth.repository.model.SocialUser;
 import com.example.oauth.util.JsonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;

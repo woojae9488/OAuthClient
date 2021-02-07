@@ -1,9 +1,9 @@
 package com.example.oauth.config;
 
-import com.example.oauth.config.security.AuthenticationSuccessHandler;
-import com.example.oauth.config.security.TokenAuthenticationFilter;
-import com.example.oauth.config.security.TwitterCallbackAuthenticationFilter;
-import com.example.oauth.config.security.TwitterLoginProcessingFilter;
+import com.example.oauth.filter.AuthenticationSuccessHandler;
+import com.example.oauth.filter.TokenAuthenticationFilter;
+import com.example.oauth.filter.TwitterCallbackAuthenticationFilter;
+import com.example.oauth.filter.TwitterLoginProcessingFilter;
 import com.example.oauth.model.UserRole;
 import com.example.oauth.service.OAuth2UserService;
 import lombok.RequiredArgsConstructor;

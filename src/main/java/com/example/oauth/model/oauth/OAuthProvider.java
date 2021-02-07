@@ -1,4 +1,4 @@
-package com.example.oauth.config.oauth;
+package com.example.oauth.model.oauth;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.example.oauth.repository.model;
 
-import com.example.oauth.config.oauth.OAuthProvider;
+import com.example.oauth.model.oauth.OAuthProvider;
 import com.example.oauth.model.UserRole;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

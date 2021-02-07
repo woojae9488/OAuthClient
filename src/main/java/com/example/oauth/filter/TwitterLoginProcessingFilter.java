@@ -1,7 +1,7 @@
-package com.example.oauth.config.security;
+package com.example.oauth.filter;
 
-import com.example.oauth.config.oauth.OAuth1ClientProperties;
-import com.example.oauth.model.OAuth1Requirement;
+import com.example.oauth.config.properties.OAuth1ClientProperties;
+import com.example.oauth.model.oauth.OAuth1Requirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;

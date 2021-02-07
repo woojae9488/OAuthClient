@@ -1,6 +1,6 @@
-package com.example.oauth.config.token;
+package com.example.oauth.config.properties;
 
-import com.example.oauth.model.TokenType;
+import com.example.oauth.model.token.TokenType;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;

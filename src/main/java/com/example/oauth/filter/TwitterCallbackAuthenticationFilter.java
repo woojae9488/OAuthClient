@@ -1,8 +1,8 @@
-package com.example.oauth.config.security;
+package com.example.oauth.filter;
 
-import com.example.oauth.config.oauth.OAuth1ClientProperties;
-import com.example.oauth.config.oauth.OAuthProvider;
-import com.example.oauth.model.OAuthUserPrincipal;
+import com.example.oauth.config.properties.OAuth1ClientProperties;
+import com.example.oauth.model.oauth.OAuthProvider;
+import com.example.oauth.model.oauth.OAuthUserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
