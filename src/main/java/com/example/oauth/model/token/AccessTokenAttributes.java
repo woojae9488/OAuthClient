@@ -10,8 +10,10 @@ import lombok.Getter;
 public class AccessTokenAttributes extends TokenAttributes {
     private Long id;
     private OAuthProvider provider;
-    private String email;
+    private String username;
+    private String profileImage;
     private UserRole role;
+
 
     private AccessTokenAttributes() {
         super(TokenType.ACCESS_TOKEN);
@@ -21,7 +23,8 @@ public class AccessTokenAttributes extends TokenAttributes {
         AccessTokenAttributes tokenAttributes = new AccessTokenAttributes();
         tokenAttributes.id = socialUser.getId();
         tokenAttributes.provider = socialUser.getProvider();
-        tokenAttributes.email = socialUser.getEmail();
+        tokenAttributes.username = socialUser.getUsername();
+        tokenAttributes.profileImage = socialUser.getProfileImage();
         tokenAttributes.role = socialUser.getRole();
         return tokenAttributes;
     }
@@ -30,7 +33,8 @@ public class AccessTokenAttributes extends TokenAttributes {
         AccessTokenAttributes tokenAttributes = new AccessTokenAttributes();
         tokenAttributes.id = claims.get("id", Long.class);
         tokenAttributes.provider = OAuthProvider.valueOf(claims.get("provider", String.class));
-        tokenAttributes.email = claims.get("email", String.class);
+        tokenAttributes.username = claims.get("username", String.class);
+        tokenAttributes.profileImage = claims.get("profileImage", String.class);
         tokenAttributes.role = UserRole.valueOf(claims.get("role", String.class));
         return tokenAttributes;
     }
@@ -40,7 +44,8 @@ public class AccessTokenAttributes extends TokenAttributes {
         return SocialUser.builder()
                 .id(id)
                 .provider(provider)
-                .email(email)
+                .username(username)
+                .profileImage(profileImage)
                 .role(role)
                 .build();
     }

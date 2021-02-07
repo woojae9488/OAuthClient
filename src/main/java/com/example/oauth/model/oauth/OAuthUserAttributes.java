@@ -11,6 +11,7 @@ import java.util.Map;
 public class OAuthUserAttributes {
     private final OAuthProvider provider;
     private final UserRole role;
+    private Long providerUserId;
     private String username;
     private String email;
     private String profileImage;
@@ -48,8 +49,10 @@ public class OAuthUserAttributes {
     @SuppressWarnings("unchecked")
     private void initKakaoOAuthUserAttributes(OAuth2User user) {
         Map<String, Object> kakaoAccount = user.getAttribute("kakao_account");
-        assert kakaoAccount != null;
+        Integer providerUserIdInt = user.getAttribute("id");
+        assert kakaoAccount != null && providerUserIdInt != null;
         Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+        this.providerUserId = providerUserIdInt.longValue();
         this.username = String.valueOf(profile.get("nickname"));
         this.email = String.valueOf(kakaoAccount.get("email"));
         this.profileImage = String.valueOf(profile.get("profile_image"));
@@ -58,13 +61,15 @@ public class OAuthUserAttributes {
     private void initNaverOAuthUserAttributes(OAuth2User user) {
         Map<String, Object> response = user.getAttribute("response");
         assert response != null;
+        this.providerUserId = Long.valueOf(String.valueOf(response.get("id")));
         this.username = String.valueOf(response.get("name"));
         this.email = String.valueOf(response.get("email"));
         this.profileImage = String.valueOf(response.get("profile_image"));
     }
 
     private void initTwitterOAuthUserAttributes(Map<String, Object> userMap) {
-        this.username = String.valueOf(userMap.get("screen_name"));
+        this.providerUserId = (Long) userMap.get("id");
+        this.username = String.valueOf(userMap.get("name"));
         this.email = String.valueOf(userMap.get("email"));
         this.profileImage = String.valueOf(userMap.get("profile_image_url"));
     }
@@ -72,6 +77,7 @@ public class OAuthUserAttributes {
     public SocialUser generateSocialUser() {
         return SocialUser.builder()
                 .provider(provider)
+                .providerUserId(providerUserId)
                 .username(username)
                 .email(email)
                 .profileImage(profileImage)

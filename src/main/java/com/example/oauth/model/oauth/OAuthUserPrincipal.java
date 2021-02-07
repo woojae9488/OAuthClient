@@ -31,7 +31,6 @@ public class OAuthUserPrincipal implements OAuth2User, UserDetails {
     }
 
     public OAuthUserPrincipal(OAuthProvider provider, Map<String, Object> userMap) {
-        // TODO : add UserRole check logic
         this.authorities = Collections.singletonList(new SimpleGrantedAuthority(UserRole.USER.getRoleType()));
         this.socialUser = new OAuthUserAttributes(provider, userMap, UserRole.USER).generateSocialUser();
     }

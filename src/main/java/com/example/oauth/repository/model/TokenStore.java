@@ -27,7 +27,7 @@ public class TokenStore {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "access_token")
+    @Column(name = "access_token", length = 500)
     private String accessToken;
 
     @Column(name = "refresh_token")
