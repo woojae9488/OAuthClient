@@ -1,8 +1,8 @@
 package com.kwj.oauth.config;
 
+import com.kwj.oauth.business.security.model.OAuthProvider;
 import com.kwj.oauth.config.properties.OAuth1ClientProperties;
 import com.kwj.oauth.config.properties.OAuth2ClientProperties;
-import com.kwj.oauth.business.security.model.OAuthProvider;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.social.oauth1.OAuth1Operations;
 import org.springframework.social.twitter.connect.TwitterConnectionFactory;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -22,9 +22,11 @@ public class OAuthClientConfig {
 
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
-        List<ClientRegistration> clientRegistrations = new ArrayList<>();
-        clientRegistrations.add(kakaoClientProperties().generateRegistration());
-        clientRegistrations.add(naverClientProperties().generateRegistration());
+        List<ClientRegistration> clientRegistrations = Arrays.asList(
+                kakaoClientProperties().generateRegistration(),
+                naverClientProperties().generateRegistration()
+        );
+
         return new InMemoryClientRegistrationRepository(clientRegistrations);
     }
 

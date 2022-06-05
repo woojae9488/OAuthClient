@@ -18,6 +18,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuthProvider provider = OAuthProvider.nameOf(registrationId);
         OAuth2User defaultOAuth2User = super.loadUser(userRequest);
+
         return new OAuthUserPrincipal(provider, defaultOAuth2User);
     }
 

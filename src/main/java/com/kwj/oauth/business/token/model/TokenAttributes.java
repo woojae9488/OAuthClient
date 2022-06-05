@@ -1,9 +1,9 @@
 package com.kwj.oauth.business.token.model;
 
-import com.kwj.oauth.business.user.domain.SocialUser;
-import com.kwj.oauth.util.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.kwj.oauth.business.user.domain.SocialUser;
+import com.kwj.oauth.util.JsonUtils;
 import io.jsonwebtoken.Claims;
 import lombok.Getter;
 
@@ -25,9 +25,8 @@ public abstract class TokenAttributes {
             case ACCESS_TOKEN:
                 return AccessTokenAttributes.of(socialUser);
             case REFRESH_TOKEN:
-                return RefreshTokenAttributes.of(socialUser);
             default:
-                return null;
+                return RefreshTokenAttributes.of(socialUser);
         }
     }
 
@@ -36,9 +35,8 @@ public abstract class TokenAttributes {
             case ACCESS_TOKEN:
                 return AccessTokenAttributes.of(claims);
             case REFRESH_TOKEN:
-                return RefreshTokenAttributes.of(claims);
             default:
-                return null;
+                return RefreshTokenAttributes.of(claims);
         }
     }
 

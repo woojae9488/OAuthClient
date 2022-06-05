@@ -2,6 +2,9 @@ package com.kwj.oauth.business.security.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
 
 @Getter
 @RequiredArgsConstructor
@@ -14,12 +17,10 @@ public enum OAuthProvider {
     private final String name;
 
     public static OAuthProvider nameOf(String name) {
-        for (OAuthProvider provider : values()) {
-            if (name.equals(provider.getName())) {
-                return provider;
-            }
-        }
-        return null;
+        return Arrays.stream(values())
+                .filter(provider -> StringUtils.equals(provider.name, name))
+                .findFirst()
+                .orElse(null);
     }
 
 }

@@ -53,6 +53,7 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
     private void setAuthorizationTokenCookies(HttpServletResponse response, SocialUser socialUser) {
         String accessToken = tokenService.createAccessToken(socialUser);
         String refreshToken = tokenService.createRefreshToken(socialUser, accessToken);
+
         saveTokenToCookie(response, TokenType.ACCESS_TOKEN, accessToken);
         saveTokenToCookie(response, TokenType.REFRESH_TOKEN, refreshToken);
     }
@@ -60,6 +61,7 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
     private void saveTokenToCookie(HttpServletResponse response, TokenType tokenType, String token) {
         String cookieKey = tokenProperties.getTokenCookieKey(tokenType);
         int cookieMaxAge = tokenProperties.getTokenCookieMaxAge(tokenType);
+
         CookieUtils.setCookie(response, cookieKey, token, cookieMaxAge);
     }
 

@@ -1,80 +1,59 @@
 package com.kwj.oauth.config.properties;
 
 import com.kwj.oauth.business.token.model.TokenType;
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import lombok.ToString;
 
-@Component
-@Getter(value = AccessLevel.PRIVATE)
+
 @Setter
+@ToString
 public class AuthorizationTokenProperties {
 
-    private final String accessTokenCookieKey = "access-token";
-    private final String refreshTokenCookieKey = "refresh-token";
+    private static final String accessTokenCookieKey = "access-token";
+    private static final String refreshTokenCookieKey = "refresh-token";
 
-    @Value("${security.token.access.secret}")
-    private String accessTokenSecret;
-    @Value("${security.token.access.expirationMsec}")
-    private Long accessTokenExpirationMsec;
+    private TokenMeta access;
+    private TokenMeta refresh;
 
-    @Value("${security.token.refresh.secret}")
-    private String refreshTokenSecret;
-    @Value("${security.token.refresh.expirationMsec}")
-    private Long refreshTokenExpirationMsec;
+    @Setter
+    @ToString
+    public static class TokenMeta {
+        private String secret;
+        private Long expirationMillis;
+    }
 
     public String getTokenSecret(TokenType tokenType) {
         switch (tokenType) {
             case ACCESS_TOKEN:
-                return this.getAccessTokenSecret();
+                return this.access.secret;
             case REFRESH_TOKEN:
-                return this.getRefreshTokenSecret();
             default:
-                return "";
+                return this.refresh.secret;
         }
     }
 
-    public Long getTokenExpirationMsec(TokenType tokenType) {
+    public Long getTokenExpirationMillis(TokenType tokenType) {
         switch (tokenType) {
             case ACCESS_TOKEN:
-                return this.getAccessTokenExpirationMsec();
+                return this.access.expirationMillis;
             case REFRESH_TOKEN:
-                return this.getRefreshTokenExpirationMsec();
             default:
-                return 0L;
+                return this.refresh.expirationMillis;
         }
     }
 
     public String getTokenCookieKey(TokenType tokenType) {
         switch (tokenType) {
             case ACCESS_TOKEN:
-                return this.getAccessTokenCookieKey();
+                return AuthorizationTokenProperties.accessTokenCookieKey;
             case REFRESH_TOKEN:
-                return this.getRefreshTokenCookieKey();
             default:
-                return "";
+                return AuthorizationTokenProperties.refreshTokenCookieKey;
         }
     }
 
     public int getTokenCookieMaxAge(TokenType tokenType) {
-        switch (tokenType) {
-            case ACCESS_TOKEN:
-                return this.getAccessTokenCookieMaxAge();
-            case REFRESH_TOKEN:
-                return this.getRefreshTokenCookieMaxAge();
-            default:
-                return 0;
-        }
-    }
-
-    private int getAccessTokenCookieMaxAge() {
-        return Long.valueOf(accessTokenExpirationMsec / 1000).intValue();
-    }
-
-    private int getRefreshTokenCookieMaxAge() {
-        return Long.valueOf(refreshTokenExpirationMsec / 1000).intValue();
+        return Math.toIntExact(getTokenExpirationMillis(tokenType) / 1000);
     }
 
 }

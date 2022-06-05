@@ -28,7 +28,8 @@ public class TwitterLoginProcessingFilter extends OncePerRequestFilter {
     private final OAuth1Operations oauthOperations;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws ServletException, IOException {
         if (requiresLoginProcessing(request)) {
             OAuth1Requirement oauth1Requirement = getTwitterOAuthRequirement();
             request.getServletContext().setAttribute("token", oauth1Requirement.getRequestToken());

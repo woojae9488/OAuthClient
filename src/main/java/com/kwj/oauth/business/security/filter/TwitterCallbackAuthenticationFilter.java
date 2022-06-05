@@ -1,8 +1,8 @@
 package com.kwj.oauth.business.security.filter;
 
-import com.kwj.oauth.config.properties.OAuth1ClientProperties;
 import com.kwj.oauth.business.security.model.OAuthProvider;
 import com.kwj.oauth.business.security.model.OAuthUserPrincipal;
+import com.kwj.oauth.config.properties.OAuth1ClientProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,13 +25,17 @@ public class TwitterCallbackAuthenticationFilter extends AbstractAuthenticationP
 
     private static final String CALLBACK_PROCESSING_URL = "/login/oauth1/twitter/callback";
 
-    @Autowired
-    private OAuth1ClientProperties clientProperties;
-    @Autowired
-    private OAuth1Operations oauthOperations;
+    private final OAuth1ClientProperties clientProperties;
+    private final OAuth1Operations oauthOperations;
 
-    protected TwitterCallbackAuthenticationFilter() {
+    protected TwitterCallbackAuthenticationFilter(
+            OAuth1ClientProperties clientProperties,
+            OAuth1Operations oauthOperations
+    ) {
         super(CALLBACK_PROCESSING_URL);
+
+        this.clientProperties = clientProperties;
+        this.oauthOperations = oauthOperations;
     }
 
     @Override
@@ -41,22 +45,27 @@ public class TwitterCallbackAuthenticationFilter extends AbstractAuthenticationP
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
         OAuthToken requestToken = (OAuthToken) request.getServletContext().getAttribute("token");
         request.getServletContext().removeAttribute("token");
         String oauthVerifier = request.getParameter("oauth_verifier");
 
         TwitterTemplate twitterTemplate = generateTwitterTemplate(requestToken, oauthVerifier);
         OAuthUserPrincipal userPrincipal = generateOAuthUserPrincipal(twitterTemplate);
+
         return generateAuthentication(request, userPrincipal);
     }
 
     private TwitterTemplate generateTwitterTemplate(OAuthToken requestToken, String oauthVerifier) {
         AuthorizedRequestToken authorizedRequestToken = new AuthorizedRequestToken(requestToken, oauthVerifier);
         OAuthToken accessToken = oauthOperations.exchangeForAccessToken(authorizedRequestToken, null);
+
         return new TwitterTemplate(
-                clientProperties.getClientId(), clientProperties.getClientSecret(),
-                accessToken.getValue(), accessToken.getSecret()
+                clientProperties.getClientId(),
+                clientProperties.getClientSecret(),
+                accessToken.getValue(),
+                accessToken.getSecret()
         );
     }
 
@@ -64,6 +73,7 @@ public class TwitterCallbackAuthenticationFilter extends AbstractAuthenticationP
     public OAuthUserPrincipal generateOAuthUserPrincipal(TwitterTemplate twitterTemplate) {
         Map<String, Object> userMap = (Map<String, Object>) twitterTemplate.restOperations()
                 .getForObject(clientProperties.getUserInfoUri(), Map.class);
+
         return new OAuthUserPrincipal(OAuthProvider.TWITTER, userMap);
     }
 
@@ -71,6 +81,7 @@ public class TwitterCallbackAuthenticationFilter extends AbstractAuthenticationP
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetails(request));
+
         return authentication;
     }
 

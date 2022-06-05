@@ -6,7 +6,9 @@ import com.kwj.oauth.business.security.filter.TwitterCallbackAuthenticationFilte
 import com.kwj.oauth.business.security.filter.TwitterLoginProcessingFilter;
 import com.kwj.oauth.business.security.handler.AuthenticationSuccessHandler;
 import com.kwj.oauth.business.security.model.UserRole;
+import com.kwj.oauth.config.properties.AuthorizationTokenProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -90,8 +92,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         configuration.setAllowedOrigins(Collections.singletonList("*"));
         configuration.setAllowedMethods(Collections.singletonList("*"));
         configuration.setAllowedHeaders(Collections.singletonList("*"));
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 
@@ -99,6 +103,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
+    }
+
+    @Bean
+    @ConfigurationProperties(prefix = "security.token")
+    public AuthorizationTokenProperties authorizationTokenProperties() {
+        return new AuthorizationTokenProperties();
     }
 
 }

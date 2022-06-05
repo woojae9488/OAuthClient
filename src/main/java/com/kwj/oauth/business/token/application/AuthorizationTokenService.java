@@ -44,15 +44,15 @@ public class AuthorizationTokenService {
                 .createTime(System.currentTimeMillis())
                 .build();
         tokenStoreRepository.save(tokenStore);
+
         return refreshToken;
     }
 
     private String createToken(TokenType tokenType, SocialUser socialUser) {
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + tokenProperties.getTokenExpirationMsec(tokenType));
+        Date expiration = new Date(now.getTime() + tokenProperties.getTokenExpirationMillis(tokenType));
 
         TokenAttributes tokenAttributes = TokenAttributes.extract(tokenType, socialUser);
-        assert tokenAttributes != null;
 
         return Jwts.builder()
                 .setSubject(JWT_SUBJECT_PREFIX + socialUser.getId())
@@ -71,7 +71,6 @@ public class AuthorizationTokenService {
                     .getBody();
 
             TokenAttributes tokenAttributes = TokenAttributes.restore(tokenType, claims);
-            assert tokenAttributes != null;
             return tokenAttributes.getPseudoSocialUser();
         } catch (Exception e) {
             throw new AuthenticationFailedException();
@@ -83,6 +82,7 @@ public class AuthorizationTokenService {
             Jwts.parser()
                     .setSigningKey(tokenProperties.getTokenSecret(tokenType))
                     .parseClaimsJws(token);
+
             return true;
         } catch (Exception e) {
             return false;
@@ -93,6 +93,7 @@ public class AuthorizationTokenService {
         if (refreshToken == null) {
             throw new AuthenticationFailedException();
         }
+
         SocialUser pseudoSocialUser = getPseudoSocialUserFromToken(TokenType.REFRESH_TOKEN, refreshToken);
         TokenStore tokenStore = tokenStoreRepository.findByUserId(pseudoSocialUser.getId())
                 .orElseThrow(AuthenticationFailedException::new);
@@ -100,8 +101,10 @@ public class AuthorizationTokenService {
         if (validateRefreshToken(tokenStore, expiredAccessToken, refreshToken)) {
             SocialUser socialUser = userRepository.findById(pseudoSocialUser.getId())
                     .orElseThrow(AuthenticationFailedException::new);
+
             String accessToken = createToken(TokenType.ACCESS_TOKEN, socialUser);
             reflectNewAccessTokenToTokenStore(tokenStore, accessToken);
+
             return accessToken;
         } else {
             throw new AuthenticationFailedException();
@@ -116,6 +119,7 @@ public class AuthorizationTokenService {
     private void reflectNewAccessTokenToTokenStore(TokenStore tokenStore, String accessToken) {
         tokenStore.setAccessToken(accessToken);
         tokenStore.setUpdateTime(System.currentTimeMillis());
+
         tokenStoreRepository.save(tokenStore);
     }
 
