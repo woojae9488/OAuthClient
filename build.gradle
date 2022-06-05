@@ -22,17 +22,21 @@ ext {
     social_twitter_version = "1.5.22.RELEASE"
 
     token_jjwt_version = "0.9.1"
+    commons_lang3_version = "3.12.0"
+    commons_collections4_version = "4.4"
 }
 
 dependencies {
-    implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "org.springframework.boot:spring-boot-starter-web"
 
     implementation "org.springframework.boot:spring-boot-starter-social-twitter:$social_twitter_version"
 
     implementation "io.jsonwebtoken:jjwt:$token_jjwt_version"
+    implementation "org.apache.commons:commons-lang3:$commons_lang3_version"
+    implementation "org.apache.commons:commons-collections4:$commons_collections4_version"
 
     compileOnly "org.projectlombok:lombok"
     annotationProcessor "org.projectlombok:lombok"
