@@ -7,7 +7,7 @@ import com.kwj.oauth.util.JsonUtils;
 import io.jsonwebtoken.Claims;
 import lombok.Getter;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 @Getter
@@ -42,7 +42,7 @@ public abstract class TokenAttributes {
 
     public Map<String, Object> getAttributesMap() {
         return JsonUtils.convertValue(this.getPseudoSocialUser(), new TypeReference<Map<String, Object>>() {
-        }).orElseGet(HashMap::new);
+        }).orElseGet(Collections::emptyMap);
     }
 
     public abstract SocialUser getPseudoSocialUser();

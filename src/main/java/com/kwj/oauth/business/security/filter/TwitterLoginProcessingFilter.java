@@ -1,7 +1,8 @@
 package com.kwj.oauth.business.security.filter;
 
-import com.kwj.oauth.config.properties.OAuth1ClientProperties;
+import com.kwj.oauth.business.security.application.ServletContextHelper;
 import com.kwj.oauth.business.security.model.OAuth1Requirement;
+import com.kwj.oauth.config.properties.OAuth1ClientProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -32,7 +33,8 @@ public class TwitterLoginProcessingFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         if (requiresLoginProcessing(request)) {
             OAuth1Requirement oauth1Requirement = getTwitterOAuthRequirement();
-            request.getServletContext().setAttribute("token", oauth1Requirement.getRequestToken());
+            ServletContextHelper.setAttribute(request, "token", oauth1Requirement.getRequestToken());
+
             response.sendRedirect(oauth1Requirement.getAuthenticationUri());
             return;
         }

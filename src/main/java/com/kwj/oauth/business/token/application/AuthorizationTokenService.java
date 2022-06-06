@@ -1,20 +1,22 @@
 package com.kwj.oauth.business.token.application;
 
+import com.kwj.oauth.business.token.domain.TokenStore;
+import com.kwj.oauth.business.token.infra.TokenStoreRepository;
 import com.kwj.oauth.business.token.model.TokenAttributes;
 import com.kwj.oauth.business.token.model.TokenType;
-import com.kwj.oauth.config.properties.AuthorizationTokenProperties;
-import com.kwj.oauth.business.user.infra.SocialUserRepository;
-import com.kwj.oauth.business.token.infra.TokenStoreRepository;
 import com.kwj.oauth.business.user.domain.SocialUser;
-import com.kwj.oauth.business.token.domain.TokenStore;
+import com.kwj.oauth.business.user.infra.SocialUserRepository;
+import com.kwj.oauth.config.properties.AuthorizationTokenProperties;
+import com.kwj.oauth.exception.OAuthException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 
-import javax.mail.AuthenticationFailedException;
 import java.util.Date;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -63,7 +65,7 @@ public class AuthorizationTokenService {
                 .compact();
     }
 
-    public SocialUser getPseudoSocialUserFromToken(TokenType tokenType, String token) throws AuthenticationFailedException {
+    public SocialUser getPseudoSocialUserFromToken(TokenType tokenType, String token) {
         try {
             Claims claims = Jwts.parser()
                     .setSigningKey(tokenProperties.getTokenSecret(tokenType))
@@ -73,11 +75,13 @@ public class AuthorizationTokenService {
             TokenAttributes tokenAttributes = TokenAttributes.restore(tokenType, claims);
             return tokenAttributes.getPseudoSocialUser();
         } catch (Exception e) {
-            throw new AuthenticationFailedException();
+            throw new OAuthException(
+                    String.format("Failed to get pseudo SocialUser from token (tokenType: %s, token: %s)",
+                            tokenType, token));
         }
     }
 
-    public boolean validateToken(TokenType tokenType, String token) {
+    public boolean isValidToken(TokenType tokenType, String token) {
         try {
             Jwts.parser()
                     .setSigningKey(tokenProperties.getTokenSecret(tokenType))
@@ -89,31 +93,40 @@ public class AuthorizationTokenService {
         }
     }
 
-    public String refreshAccessToken(String expiredAccessToken, String refreshToken) throws AuthenticationFailedException {
-        if (refreshToken == null) {
-            throw new AuthenticationFailedException();
+    public String refreshAccessToken(String expiredAccessToken, String refreshToken) {
+        if (Objects.isNull(refreshToken)) {
+            throw new OAuthException(
+                    String.format("Failed to refresh access token: refresh token is null (expiredAccessToken: %s)",
+                            expiredAccessToken));
         }
 
         SocialUser pseudoSocialUser = getPseudoSocialUserFromToken(TokenType.REFRESH_TOKEN, refreshToken);
-        TokenStore tokenStore = tokenStoreRepository.findByUserId(pseudoSocialUser.getId())
-                .orElseThrow(AuthenticationFailedException::new);
+        Long userId = pseudoSocialUser.getId();
 
-        if (validateRefreshToken(tokenStore, expiredAccessToken, refreshToken)) {
-            SocialUser socialUser = userRepository.findById(pseudoSocialUser.getId())
-                    .orElseThrow(AuthenticationFailedException::new);
+        TokenStore tokenStore = tokenStoreRepository.findByUserId(userId)
+                .orElseThrow(() -> new OAuthException(
+                        String.format("Failed to refresh access token: Not found TokenStore (userId: %s)", userId)));
+        validateRefreshToken(tokenStore, expiredAccessToken, refreshToken);
 
-            String accessToken = createToken(TokenType.ACCESS_TOKEN, socialUser);
-            reflectNewAccessTokenToTokenStore(tokenStore, accessToken);
+        SocialUser socialUser = userRepository.findById(userId)
+                .orElseThrow(() -> new OAuthException(String.format(
+                        "Failed to refresh access token: Not found SocialUser (userId: %s)", userId)));
 
-            return accessToken;
-        } else {
-            throw new AuthenticationFailedException();
-        }
+        String accessToken = createToken(TokenType.ACCESS_TOKEN, socialUser);
+        reflectNewAccessTokenToTokenStore(tokenStore, accessToken);
+
+        return accessToken;
     }
 
-    private boolean validateRefreshToken(TokenStore tokenStore, String expiredAccessToken, String refreshToken) {
-        return expiredAccessToken.equals(tokenStore.getAccessToken())
+    private void validateRefreshToken(TokenStore tokenStore, String expiredAccessToken, String refreshToken) {
+        boolean refreshTokenIsValid = expiredAccessToken.equals(tokenStore.getAccessToken())
                 && refreshToken.equals(tokenStore.getRefreshToken());
+
+        if (BooleanUtils.isFalse(refreshTokenIsValid)) {
+            throw new OAuthException(
+                    String.format("Failed to validate refresh token (expiredAccessToken: %s, refreshToken: %s)",
+                            expiredAccessToken, refreshToken));
+        }
     }
 
     private void reflectNewAccessTokenToTokenStore(TokenStore tokenStore, String accessToken) {

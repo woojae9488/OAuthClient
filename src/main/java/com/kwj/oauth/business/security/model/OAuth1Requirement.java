@@ -1,14 +1,16 @@
 package com.kwj.oauth.business.security.model;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.ToString;
 import org.springframework.social.oauth1.OAuthToken;
 
-@Data
+@Getter
 @Builder
+@ToString
 public class OAuth1Requirement {
 
-    private OAuthToken requestToken;
-    private String authenticationUri;
+    private final OAuthToken requestToken;
+    private final String authenticationUri;
 
 }

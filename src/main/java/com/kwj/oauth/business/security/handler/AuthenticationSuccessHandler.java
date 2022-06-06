@@ -2,11 +2,11 @@ package com.kwj.oauth.business.security.handler;
 
 import com.kwj.oauth.business.security.model.OAuthUserPrincipal;
 import com.kwj.oauth.business.token.application.AuthorizationTokenService;
+import com.kwj.oauth.business.token.application.TokenCookieService;
 import com.kwj.oauth.business.token.model.TokenType;
-import com.kwj.oauth.config.properties.AuthorizationTokenProperties;
-import com.kwj.oauth.business.user.infra.SocialUserRepository;
 import com.kwj.oauth.business.user.domain.SocialUser;
-import com.kwj.oauth.util.CookieUtils;
+import com.kwj.oauth.business.user.infra.SocialUserRepository;
+import com.kwj.oauth.exception.OAuthException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -23,9 +23,9 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
 
     public static final String OAUTH_SUCCESS_REDIRECT_URL = "/";
 
-    private final SocialUserRepository userRepository;
     private final AuthorizationTokenService tokenService;
-    private final AuthorizationTokenProperties tokenProperties;
+    private final TokenCookieService tokenCookieService;
+    private final SocialUserRepository userRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -34,7 +34,12 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
             return;
         }
 
-        OAuthUserPrincipal userPrincipal = (OAuthUserPrincipal) authentication.getPrincipal();
+        OAuthUserPrincipal userPrincipal = Optional.of(authentication)
+                .map(Authentication::getPrincipal)
+                .filter(OAuthUserPrincipal.class::isInstance)
+                .map(OAuthUserPrincipal.class::cast)
+                .orElseThrow(() -> new OAuthException("Failed to get OAuthUserPrincipal"));
+
         SocialUser socialUser = userPrincipal.getSocialUser();
         Optional<SocialUser> socialUserEntity = getSocialUserEntity(socialUser);
         socialUserEntity.ifPresentOrElse(
@@ -54,15 +59,8 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
         String accessToken = tokenService.createAccessToken(socialUser);
         String refreshToken = tokenService.createRefreshToken(socialUser, accessToken);
 
-        saveTokenToCookie(response, TokenType.ACCESS_TOKEN, accessToken);
-        saveTokenToCookie(response, TokenType.REFRESH_TOKEN, refreshToken);
-    }
-
-    private void saveTokenToCookie(HttpServletResponse response, TokenType tokenType, String token) {
-        String cookieKey = tokenProperties.getTokenCookieKey(tokenType);
-        int cookieMaxAge = tokenProperties.getTokenCookieMaxAge(tokenType);
-
-        CookieUtils.setCookie(response, cookieKey, token, cookieMaxAge);
+        tokenCookieService.saveTokenToCookie(response, TokenType.ACCESS_TOKEN, accessToken);
+        tokenCookieService.saveTokenToCookie(response, TokenType.REFRESH_TOKEN, refreshToken);
     }
 
 }

@@ -51,6 +51,7 @@ public class OAuthClientConfig {
     @Bean
     public OAuth1Operations twitterOAuthOperations() {
         OAuth1ClientProperties twitterClientProperties = twitterClientProperties();
+
         return new TwitterConnectionFactory(
                 twitterClientProperties.getClientId(),
                 twitterClientProperties.getClientSecret()

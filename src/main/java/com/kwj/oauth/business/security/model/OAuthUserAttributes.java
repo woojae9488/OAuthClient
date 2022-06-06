@@ -1,9 +1,12 @@
 package com.kwj.oauth.business.security.model;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.kwj.oauth.business.user.domain.SocialUser;
+import com.kwj.oauth.util.JsonUtils;
 import lombok.ToString;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import java.util.Collections;
 import java.util.Map;
 
 @ToString
@@ -32,26 +35,23 @@ public class OAuthUserAttributes {
         }
     }
 
-    @SuppressWarnings("SwitchStatementWithTooFewBranches")
     public OAuthUserAttributes(OAuthProvider provider, Map<String, Object> userMap, UserRole role) {
         this.provider = provider;
         this.role = role;
 
-        switch (provider) {
-            case TWITTER:
-                initTwitterOAuthUserAttributes(userMap);
-                break;
-            default:
-                break;
+        if (provider == OAuthProvider.TWITTER) {
+            initTwitterOAuthUserAttributes(userMap);
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void initKakaoOAuthUserAttributes(OAuth2User user) {
         Map<String, Object> kakaoAccount = user.getAttribute("kakao_account");
         Integer providerUserIdInt = user.getAttribute("id");
         assert kakaoAccount != null && providerUserIdInt != null;
-        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+        Map<String, Object> profile = JsonUtils.convertValue(kakaoAccount.get("profile"),
+                new TypeReference<Map<String, Object>>() {
+                }).orElseGet(Collections::emptyMap);
+
         this.providerUserId = providerUserIdInt.longValue();
         this.username = String.valueOf(profile.get("nickname"));
         this.email = String.valueOf(kakaoAccount.get("email"));
@@ -61,6 +61,7 @@ public class OAuthUserAttributes {
     private void initNaverOAuthUserAttributes(OAuth2User user) {
         Map<String, Object> response = user.getAttribute("response");
         assert response != null;
+
         this.providerUserId = Long.valueOf(String.valueOf(response.get("id")));
         this.username = String.valueOf(response.get("name"));
         this.email = String.valueOf(response.get("email"));
@@ -68,7 +69,7 @@ public class OAuthUserAttributes {
     }
 
     private void initTwitterOAuthUserAttributes(Map<String, Object> userMap) {
-        this.providerUserId = (Long) userMap.get("id");
+        this.providerUserId = Long.valueOf(String.valueOf(userMap.get("id")));
         this.username = String.valueOf(userMap.get("name"));
         this.email = String.valueOf(userMap.get("email"));
         this.profileImage = String.valueOf(userMap.get("profile_image_url"));
