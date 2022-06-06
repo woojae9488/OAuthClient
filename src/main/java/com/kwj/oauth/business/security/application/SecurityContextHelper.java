@@ -2,6 +2,7 @@ package com.kwj.oauth.business.security.application;
 
 import com.kwj.oauth.business.security.model.OAuthUserPrincipal;
 import com.kwj.oauth.exception.OAuthException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -16,10 +17,16 @@ public class SecurityContextHelper {
     public static OAuthUserPrincipal getOAuthUserPrincipal() {
         return Optional.of(SecurityContextHolder.getContext())
                 .map(SecurityContext::getAuthentication)
+                .map(SecurityContextHelper::getOAuthUserPrincipal)
+                .orElseThrow(() -> new OAuthException("Failed to get OAuthUserPrincipal", HttpStatus.UNAUTHORIZED));
+    }
+
+    public static OAuthUserPrincipal getOAuthUserPrincipal(Authentication authentication) {
+        return Optional.of(authentication)
                 .map(Authentication::getPrincipal)
                 .filter(OAuthUserPrincipal.class::isInstance)
                 .map(OAuthUserPrincipal.class::cast)
-                .orElseThrow(() -> new OAuthException("Failed to get OAuthUserPrincipal"));
+                .orElse(null);
     }
 
     public static void setAuthentication(Authentication authentication) {

@@ -13,6 +13,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -77,7 +78,7 @@ public class AuthorizationTokenService {
         } catch (Exception e) {
             throw new OAuthException(
                     String.format("Failed to get pseudo SocialUser from token (tokenType: %s, token: %s)",
-                            tokenType, token));
+                            tokenType, token), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -97,7 +98,7 @@ public class AuthorizationTokenService {
         if (Objects.isNull(refreshToken)) {
             throw new OAuthException(
                     String.format("Failed to refresh access token: refresh token is null (expiredAccessToken: %s)",
-                            expiredAccessToken));
+                            expiredAccessToken), HttpStatus.BAD_REQUEST);
         }
 
         SocialUser pseudoSocialUser = getPseudoSocialUserFromToken(TokenType.REFRESH_TOKEN, refreshToken);
@@ -125,7 +126,7 @@ public class AuthorizationTokenService {
         if (BooleanUtils.isFalse(refreshTokenIsValid)) {
             throw new OAuthException(
                     String.format("Failed to validate refresh token (expiredAccessToken: %s, refreshToken: %s)",
-                            expiredAccessToken, refreshToken));
+                            expiredAccessToken, refreshToken), HttpStatus.BAD_REQUEST);
         }
     }
 

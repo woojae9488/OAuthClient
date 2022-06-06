@@ -1,5 +1,6 @@
 package com.kwj.oauth.business.security.handler;
 
+import com.kwj.oauth.business.security.application.SecurityContextHelper;
 import com.kwj.oauth.business.security.model.OAuthUserPrincipal;
 import com.kwj.oauth.business.token.application.AuthorizationTokenService;
 import com.kwj.oauth.business.token.application.TokenCookieService;
@@ -8,6 +9,7 @@ import com.kwj.oauth.business.user.domain.SocialUser;
 import com.kwj.oauth.business.user.infra.SocialUserRepository;
 import com.kwj.oauth.exception.OAuthException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -34,11 +37,10 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
             return;
         }
 
-        OAuthUserPrincipal userPrincipal = Optional.of(authentication)
-                .map(Authentication::getPrincipal)
-                .filter(OAuthUserPrincipal.class::isInstance)
-                .map(OAuthUserPrincipal.class::cast)
-                .orElseThrow(() -> new OAuthException("Failed to get OAuthUserPrincipal"));
+        OAuthUserPrincipal userPrincipal = SecurityContextHelper.getOAuthUserPrincipal(authentication);
+        if (Objects.isNull(userPrincipal)) {
+            throw new OAuthException("Failed to get OAuthUserPrincipal", HttpStatus.UNAUTHORIZED);
+        }
 
         SocialUser socialUser = userPrincipal.getSocialUser();
         Optional<SocialUser> socialUserEntity = getSocialUserEntity(socialUser);

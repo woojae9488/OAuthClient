@@ -5,6 +5,7 @@ import com.kwj.oauth.business.security.model.OAuthUserPrincipal;
 import com.kwj.oauth.business.user.domain.SocialUser;
 import com.kwj.oauth.exception.OAuthException;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -33,7 +34,7 @@ public class AuthenticatedUserResolver implements HandlerMethodArgumentResolver 
 
         return Optional.of(userPrincipal)
                 .map(OAuthUserPrincipal::getSocialUser)
-                .orElseThrow(() -> new OAuthException("Failed to resolve authenticated user"));
+                .orElseThrow(() -> new OAuthException("Failed to resolve authenticated user", HttpStatus.UNAUTHORIZED));
     }
 
 }

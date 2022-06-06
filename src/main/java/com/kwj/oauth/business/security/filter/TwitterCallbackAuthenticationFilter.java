@@ -7,6 +7,7 @@ import com.kwj.oauth.business.security.model.OAuthUserPrincipal;
 import com.kwj.oauth.config.properties.OAuth1ClientProperties;
 import com.kwj.oauth.exception.OAuthException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
@@ -47,7 +48,8 @@ public class TwitterCallbackAuthenticationFilter extends AbstractAuthenticationP
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
         OAuthToken requestToken = ServletContextHelper.getAttributeWithRemove(request, "token", OAuthToken.class)
-                .orElseThrow(() -> new OAuthException("Failed to attempt authentication: Not found token attribute"));
+                .orElseThrow(() -> new OAuthException(
+                        "Failed to attempt authentication: Not found token attribute", HttpStatus.BAD_REQUEST));
         String oauthVerifier = request.getParameter("oauth_verifier");
 
         TwitterTemplate twitterTemplate = generateTwitterTemplate(requestToken, oauthVerifier);
