@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: INFO
+#    org.springframework.boot.autoconfigure: DEBUG
+
+security:
+  token:
+    access:
+      secret: coeQbgYFm46Dmocq
+      expiration-millis: 1800000 # 1000 * 60 * 30
+    refresh:
+      secret: Hkq3GT5aCjGDT56e
+      expiration-millis: 604800000 # 1000 * 60 * 60 * 24 * 7
+
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /console
+  datasource:
+    url: jdbc:h2:mem:test
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect

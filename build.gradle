@@ -1,12 +1,12 @@
 plugins {
-    id 'org.springframework.boot' version '2.4.2'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'java'
+    id "org.springframework.boot" version "2.4.2"
+    id "io.spring.dependency-management" version "1.0.11.RELEASE"
+    id "java"
 }
 
-group = 'com.example'
-version = '0.0.1-SNAPSHOT'
-//sourceCompatibility = '11'
+group = "com.kwj"
+version = "0.0.1-SNAPSHOT"
+sourceCompatibility = "11"
 
 configurations {
     compileOnly {
@@ -18,24 +18,36 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    social_twitter_version = "1.5.22.RELEASE"
+
+    token_jjwt_version = "0.9.1"
+    commons_lang3_version = "3.12.0"
+    commons_collections4_version = "4.4"
+}
+
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    implementation 'org.springframework.boot:spring-boot-starter-social-twitter:1.5.22.RELEASE'
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "org.springframework.boot:spring-boot-starter-web"
 
-    implementation 'io.jsonwebtoken:jjwt:0.9.1'
-//	implementation 'org.webjars:webjars-locator-core'
-//	implementation 'org.webjars:bootstrap:3.3.7-1'
-//	implementation 'org.webjars:jquery:3.4.1'
+    implementation "org.springframework.boot:spring-boot-starter-social-twitter:$social_twitter_version"
 
-    compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.h2database:h2'
+    implementation "io.jsonwebtoken:jjwt:$token_jjwt_version"
+    implementation "org.apache.commons:commons-lang3:$commons_lang3_version"
+    implementation "org.apache.commons:commons-collections4:$commons_collections4_version"
 
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+
+    runtimeOnly "com.h2database:h2"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.security:spring-security-test"
+
+    testCompileOnly "org.projectlombok:lombok"
+    testAnnotationProcessor "org.projectlombok:lombok"
 }
 
 test {
